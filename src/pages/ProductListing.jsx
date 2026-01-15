@@ -1,5 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import debounce from 'lodash.debounce';
+import { trackEvent } from '../lib/analytics';
 import { products, categories } from '../data/mockData';
 import ProductCard from '../components/products/ProductCard';
 import { Search, SlidersHorizontal } from 'lucide-react';
@@ -18,6 +20,20 @@ const ProductListing = () => {
   const brands = useMemo(() => {
     return [...new Set(products.map((p) => p.brand))].sort();
   }, []);
+
+  const debouncedTrackSearch = useMemo(
+    () =>
+      debounce((query) => {
+        if (query) {
+          trackEvent('search', { search_term: query });
+        }
+      }, 500),
+    []
+  );
+
+  useEffect(() => {
+    debouncedTrackSearch(searchQuery);
+  }, [searchQuery, debouncedTrackSearch]);
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
