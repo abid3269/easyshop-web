@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import SocialSignIn from '../components/SocialSignIn';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ const SignIn = () => {
     try {
       await signIn(email, password);
       navigate('/');
-    } catch (err) {
+    } catch {
       setError('Failed to sign in. Please try again.');
     }
   };
@@ -108,6 +109,7 @@ const SignIn = () => {
             </button>
           </div>
         </form>
+        <SocialSignIn />
       </div>
     </div>
   );
