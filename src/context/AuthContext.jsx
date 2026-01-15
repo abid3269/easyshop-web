@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { auth } from '../firebase';
+import { signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -52,12 +54,46 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
   };
 
+  const handleAuthSuccess = (result) => {
+    const user = result.user;
+    const userData = {
+      id: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+    };
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      handleAuthSuccess(result);
+    } catch (error) {
+      console.error("Error signing in with Google:", error);
+    }
+  };
+
+  const signInWithApple = async () => {
+    const provider = new OAuthProvider('apple.com');
+    try {
+      const result = await signInWithPopup(auth, provider);
+      handleAuthSuccess(result);
+    } catch (error) {
+      console.error("Error signing in with Apple:", error);
+    }
+  };
+
   const value = {
     user,
     isLoading,
     signIn,
     signUp,
     signOut,
+    signInWithGoogle,
+    signInWithApple,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
