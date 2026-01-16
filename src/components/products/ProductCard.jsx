@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { Heart, Star, ShoppingCart } from 'lucide-react';
 import { useWishlist } from '../../context/WishlistContext';
 import { useCart } from '../../context/CartContext';
-import {trackEvent} from "../../lib/analytics.js";
 
 const ProductCard = ({ product, showAddToCart = false }) => {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
@@ -21,16 +20,6 @@ const ProductCard = ({ product, showAddToCart = false }) => {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
-  const handleSelectItem = () => {
-    trackEvent('select_item', {
-      item_id: product.id,
-      item_name: product.name,
-      item_brand: product.brand,
-      item_category: product.category,
-      price: product.price,
-    });
-  };
-
   const handleAddToCart = (e) => {
     e.preventDefault();
     addToCart(product);
@@ -40,7 +29,6 @@ const ProductCard = ({ product, showAddToCart = false }) => {
     <Link
       to={`/products/${product.id}`}
       className="group relative"
-      onClick={handleSelectItem}
     >
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
         {/* Product Image */}
@@ -72,7 +60,19 @@ const ProductCard = ({ product, showAddToCart = false }) => {
         </div>
 
         {/* Product Info */}
-        <div className="p-4">
+        <div className="p-3">
+          {/* Price */}
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="text-xl font-bold text-gray-900">
+              ${product.price.toFixed(2)}
+            </span>
+            {product.originalPrice && (
+              <span className="text-sm text-gray-500 line-through">
+                ${product.originalPrice.toFixed(2)}
+              </span>
+            )}
+          </div>
+
           <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
             {product.name}
           </h3>
@@ -96,18 +96,6 @@ const ProductCard = ({ product, showAddToCart = false }) => {
             <span className="text-sm text-gray-600 ml-2">
               ({product.reviews})
             </span>
-          </div>
-
-          {/* Price */}
-          <div className="flex items-baseline gap-2 mb-3">
-            <span className="text-xl font-bold text-gray-900">
-              ${product.price.toFixed(2)}
-            </span>
-            {product.originalPrice && (
-              <span className="text-sm text-gray-500 line-through">
-                ${product.originalPrice.toFixed(2)}
-              </span>
-            )}
           </div>
 
           {showAddToCart && (

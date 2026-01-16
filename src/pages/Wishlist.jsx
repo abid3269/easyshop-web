@@ -33,7 +33,7 @@ const Wishlist = () => {
         My Wishlist ({wishlistItems.length})
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {wishlistItems.map((product) => (
           <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
             <Link to={`/products/${product.id}`}>
@@ -46,15 +46,8 @@ const Wishlist = () => {
               </div>
             </Link>
 
-            <div className="p-4">
-              <Link to={`/products/${product.id}`}>
-                <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 hover:text-blue-600">
-                  {product.name}
-                </h3>
-              </Link>
-              <p className="text-sm text-gray-500 mb-2">{product.brand}</p>
-
-              <div className="flex items-baseline gap-2 mb-4">
+            <div className="p-3">
+              <div className="flex items-baseline gap-2 mb-1">
                 <span className="text-xl font-bold text-gray-900">
                   ${product.price.toFixed(2)}
                 </span>
@@ -64,6 +57,13 @@ const Wishlist = () => {
                   </span>
                 )}
               </div>
+
+              <Link to={`/products/${product.id}`}>
+                <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 hover:text-blue-600">
+                  {product.name}
+                </h3>
+              </Link>
+              <p className="text-sm text-gray-500 mb-2">{product.brand}</p>
 
               <div className="flex gap-2">
                 <button

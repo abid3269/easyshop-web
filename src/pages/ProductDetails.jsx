@@ -137,6 +137,23 @@ const ProductDetails = () => {
 
         {/* Product Info */}
         <div>
+          {/* Price */}
+          <div className="flex items-baseline gap-3 mb-4">
+            <span className="text-4xl font-bold text-gray-900">
+              ${product.price.toFixed(2)}
+            </span>
+            {product.originalPrice && (
+              <>
+                <span className="text-2xl text-gray-500 line-through">
+                  ${product.originalPrice.toFixed(2)}
+                </span>
+                <span className="text-lg text-red-600 font-semibold">
+                  Save {discount}%
+                </span>
+              </>
+            )}
+          </div>
+
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
           <p className="text-lg text-gray-600 mb-4">{product.brand}</p>
 
@@ -161,23 +178,6 @@ const ProductDetails = () => {
             >
               {averageRating.toFixed(1)} ({totalReviews} reviews)
             </span>
-          </div>
-
-          {/* Price */}
-          <div className="flex items-baseline gap-3 mb-6">
-            <span className="text-4xl font-bold text-gray-900">
-              ${product.price.toFixed(2)}
-            </span>
-            {product.originalPrice && (
-              <>
-                <span className="text-2xl text-gray-500 line-through">
-                  ${product.originalPrice.toFixed(2)}
-                </span>
-                <span className="text-lg text-red-600 font-semibold">
-                  Save {discount}%
-                </span>
-              </>
-            )}
           </div>
 
           {/* Description */}
