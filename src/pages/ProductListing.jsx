@@ -8,7 +8,15 @@ import { Search, SlidersHorizontal } from 'lucide-react';
 
 const ProductListing = () => {
   const [searchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
+  const qFromUrl = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(qFromUrl);
+  const [prevQFromUrl, setPrevQFromUrl] = useState(qFromUrl);
+
+  if (qFromUrl !== prevQFromUrl) {
+    setSearchQuery(qFromUrl);
+    setPrevQFromUrl(qFromUrl);
+  }
+
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '');
   const [selectedBrand, setSelectedBrand] = useState('');
   const [priceRange, setPriceRange] = useState([0, 1000]);
@@ -81,6 +89,22 @@ const ProductListing = () => {
       category: selectedCategory || 'All',
     });
   }, [filteredProducts, selectedCategory]);
+
+  const debouncedTrackNoResults = useMemo(
+    () =>
+      debounce((query) => {
+        if (query) {
+          trackEvent('search_no_results', { search_term: query });
+        }
+      }, 500),
+    []
+  );
+
+  useEffect(() => {
+    if (searchQuery && filteredProducts.length === 0) {
+      debouncedTrackNoResults(searchQuery);
+    }
+  }, [searchQuery, filteredProducts.length, debouncedTrackNoResults]);
 
   const resetFilters = () => {
     setSearchQuery('');
