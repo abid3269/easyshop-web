@@ -69,6 +69,19 @@ const ProductListing = () => {
     return filtered;
   }, [searchQuery, selectedCategory, selectedBrand, priceRange, minRating, sortBy]);
 
+  useEffect(() => {
+    trackEvent('view_item_list', {
+      items: filteredProducts.map((p) => ({
+        item_id: p.id,
+        item_name: p.name,
+        item_brand: p.brand,
+        item_category: p.category,
+        price: p.price,
+      })),
+      category: selectedCategory || 'All',
+    });
+  }, [filteredProducts, selectedCategory]);
+
   const resetFilters = () => {
     setSearchQuery('');
     setSelectedCategory('');
