@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { trackEvent } from '../lib/analytics';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useState } from 'react';
 
@@ -34,6 +35,10 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
+    trackEvent('begin_checkout', {
+      value: total,
+      items: cartItems.length,
+    });
     navigate('/checkout');
   };
 
