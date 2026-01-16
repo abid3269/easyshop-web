@@ -1,22 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { products, productReviews } from '../data/mockData';
 import { trackEvent } from '../lib/analytics';
 import { ShoppingCart, Heart, Star, Minus, Plus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
+import ReviewForm from '../components/products/ReviewForm';
 
 const ProductDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const product = products.find((p) => p.id === parseInt(id));
-  const reviews = productReviews[id] || [];
+  const [reviews, setReviews] = useState(productReviews[id] || []);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const [sortOrder, setSortOrder] = useState('date');
+  const reviewsRef = useRef(null);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+
+  const handleReviewSubmit = (reviewData) => {
+    const newReview = {
+      id: reviews.length + 1,
+      ...reviewData,
+      date: new Date().toISOString().split('T')[0],
+    };
+    setReviews([...reviews, newReview]);
+  };
 
   useEffect(() => {
     if (product) {
@@ -71,6 +83,22 @@ const ProductDetails = () => {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
+  const totalReviews = reviews.length;
+  const averageRating = totalReviews > 0 ? reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews : 0;
+
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sortOrder === 'date') {
+      return new Date(b.date) - new Date(a.date);
+    } else if (sortOrder === 'rating') {
+      return b.rating - a.rating;
+    }
+    return 0;
+  });
+
+  const handleReviewsClick = () => {
+    reviewsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       {showAddedMessage && (
@@ -120,15 +148,18 @@ const ProductDetails = () => {
                   key={i}
                   size={20}
                   className={
-                    i < Math.floor(product.rating)
+                    i < Math.floor(averageRating)
                       ? 'fill-yellow-400 text-yellow-400'
                       : 'text-gray-300'
                   }
                 />
               ))}
             </div>
-            <span className="text-gray-600 ml-2">
-              {product.rating} ({product.reviews} reviews)
+            <span
+              className="text-gray-600 ml-2 cursor-pointer hover:underline"
+              onClick={handleReviewsClick}
+            >
+              {averageRating.toFixed(1)} ({totalReviews} reviews)
             </span>
           </div>
 
@@ -238,11 +269,29 @@ const ProductDetails = () => {
       </div>
 
       {/* Reviews Section */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+      <div ref={reviewsRef} className="mt-12">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Customer Reviews</h2>
+          {reviews.length > 0 && (
+            <div>
+              <label htmlFor="sort-reviews" className="text-sm font-medium text-gray-700 mr-2">
+                Sort by:
+              </label>
+              <select
+                id="sort-reviews"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value)}
+                className="border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                <option value="date">Newest</option>
+                <option value="rating">Highest Rating</option>
+              </select>
+            </div>
+          )}
+        </div>
         {reviews.length > 0 ? (
           <div className="space-y-6">
-            {reviews.map((review) => (
+            {sortedReviews.map((review) => (
               <div key={review.id} className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
@@ -270,6 +319,7 @@ const ProductDetails = () => {
         ) : (
           <p className="text-gray-500">No reviews yet. Be the first to review this product!</p>
         )}
+        <ReviewForm onSubmit={handleReviewSubmit} />
       </div>
     </div>
   );

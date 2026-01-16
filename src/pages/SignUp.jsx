@@ -33,7 +33,7 @@ const SignUp = () => {
     try {
       await signUp(name, email, password);
       navigate('/');
-    } catch (_err) {
+    } catch (err) {
       setError('Failed to create account. Please try again.');
     }
   };
