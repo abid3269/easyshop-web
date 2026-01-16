@@ -1,32 +1,46 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Package, MapPin, Heart, LogOut } from 'lucide-react';
+import ProfileSidebar from '../components/profile/ProfileSidebar';
+import { Package, Loader2 } from 'lucide-react';
+import { fetchOrders } from '../lib/api';
 
 const Profile = () => {
-  const { user, signOut } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) {
+    if (!isAuthLoading && !user) {
       navigate('/signin');
       return;
     }
 
-    // Load orders from localStorage
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(storedOrders);
-  }, [user, navigate]);
+    if (user) {
+      const loadOrders = async () => {
+        try {
+          const data = await fetchOrders();
+          setOrders(data);
+        } catch (error) {
+          console.error('Failed to fetch orders:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      loadOrders();
+    }
+  }, [user, isAuthLoading, navigate]);
 
-  if (!user) {
-    return null;
+  if (isAuthLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="animate-spin text-blue-600" size={48} />
+      </div>
+    );
   }
 
-  const handleSignOut = () => {
-    signOut();
-    navigate('/');
-  };
+  if (!user) return null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -35,55 +49,7 @@ const Profile = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center gap-4 mb-6 pb-6 border-b">
-              <div className="bg-blue-100 rounded-full p-3">
-                <User size={32} className="text-blue-600" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">{user.name}</h2>
-                <p className="text-gray-600">{user.email}</p>
-              </div>
-            </div>
-
-            <nav className="space-y-2">
-              <Link
-                to="/profile"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-600 font-medium"
-              >
-                <User size={20} />
-                Profile Info
-              </Link>
-              <Link
-                to="/profile/orders"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700"
-              >
-                <Package size={20} />
-                My Orders
-              </Link>
-              <Link
-                to="/profile/addresses"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700"
-              >
-                <MapPin size={20} />
-                Addresses
-              </Link>
-              <Link
-                to="/wishlist"
-                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 text-gray-700"
-              >
-                <Heart size={20} />
-                Wishlist
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-50 text-red-600"
-              >
-                <LogOut size={20} />
-                Sign Out
-              </button>
-            </nav>
-          </div>
+          <ProfileSidebar activeTab="profile" />
         </div>
 
         {/* Main Content */}
@@ -127,20 +93,30 @@ const Profile = () => {
 
             {orders.length > 0 ? (
               <div className="space-y-4">
-                {orders.slice(0, 3).map((order) => (
-                  <div key={order.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-gray-900">{order.id}</span>
-                      <span className="text-sm text-blue-600">{order.status}</span>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      <p>{new Date(order.date).toLocaleDateString()}</p>
-                      <p className="font-semibold text-gray-900 mt-1">
-                        Total: ${order.total.toFixed(2)}
-                      </p>
-                    </div>
+                {isLoading ? (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="animate-spin text-blue-600" size={24} />
                   </div>
-                ))}
+                ) : (
+                  orders.slice(0, 3).map((order) => (
+                    <Link
+                      key={order.id}
+                      to={`/profile/orders/${order.id}`}
+                      className="block border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-gray-900">{order.id}</span>
+                        <span className="text-sm text-blue-600">{order.status}</span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <p>{new Date(order.date).toLocaleDateString()}</p>
+                        <p className="font-semibold text-gray-900 mt-1">
+                          Total: ${order.total.toFixed(2)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))
+                )}
               </div>
             ) : (
               <div className="text-center py-8">
