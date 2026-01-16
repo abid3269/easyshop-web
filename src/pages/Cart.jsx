@@ -48,6 +48,10 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
+    trackEvent('begin_checkout', {
+      value: total,
+      items: cartItems.length,
+    });
     navigate('/checkout');
   };
 

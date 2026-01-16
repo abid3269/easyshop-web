@@ -3,7 +3,7 @@ import { ShoppingCart, Heart, Star } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useState } from 'react';
-import {trackEvent} from "../../lib/analytics.js";
+import { trackEvent } from '../../lib/analytics';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
