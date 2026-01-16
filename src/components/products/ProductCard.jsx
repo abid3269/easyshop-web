@@ -36,8 +36,22 @@ const ProductCard = ({ product }) => {
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
 
+  const handleSelectItem = () => {
+    trackEvent('select_item', {
+      item_id: product.id,
+      item_name: product.name,
+      item_brand: product.brand,
+      item_category: product.category,
+      price: product.price,
+    });
+  };
+
   return (
-    <Link to={`/products/${product.id}`} className="group relative">
+    <Link
+      to={`/products/${product.id}`}
+      className="group relative"
+      onClick={handleSelectItem}
+    >
       <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
         {/* Product Image */}
         <div className="relative overflow-hidden aspect-square bg-gray-100">

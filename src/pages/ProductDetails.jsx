@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { products, productReviews } from '../data/mockData';
+import { trackEvent } from '../lib/analytics';
 import { ShoppingCart, Heart, Star, Minus, Plus, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
@@ -16,6 +17,18 @@ const ProductDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+
+  useEffect(() => {
+    if (product) {
+      trackEvent('view_item', {
+        item_id: product.id,
+        item_name: product.name,
+        item_brand: product.brand,
+        item_category: product.category,
+        price: product.price,
+      });
+    }
+  }, [product]);
 
   if (!product) {
     return (

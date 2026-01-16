@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { trackEvent } from '../lib/analytics';
 
 const Cart = () => {
   const {
@@ -18,6 +19,19 @@ const Cart = () => {
   const navigate = useNavigate();
   const [promoInput, setPromoInput] = useState('');
   const [promoError, setPromoError] = useState('');
+
+  useEffect(() => {
+    trackEvent('view_cart', {
+      items: cartItems.map((item) => ({
+        item_id: item.id,
+        item_name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      subtotal: subtotal,
+      total: total,
+    });
+  }, [cartItems, subtotal, total]);
 
   const handleApplyPromo = () => {
     setPromoError('');
@@ -106,7 +120,15 @@ const Cart = () => {
                 </div>
 
                 <button
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => {
+                    trackEvent('remove_from_cart', {
+                      item_id: item.id,
+                      item_name: item.name,
+                      price: item.price,
+                      quantity: item.quantity,
+                    });
+                    removeFromCart(item.id);
+                  }}
                   className="text-red-600 hover:text-red-700 p-2"
                 >
                   <Trash2 size={20} />
