@@ -1,6 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { trackEvent } from '../lib/analytics';
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { trackEvent } from '../lib/analytics';
