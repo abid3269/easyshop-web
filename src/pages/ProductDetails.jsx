@@ -137,23 +137,6 @@ const ProductDetails = () => {
 
         {/* Product Info */}
         <div>
-          {/* Price */}
-          <div className="flex items-baseline gap-3 mb-4">
-            <span className="text-4xl font-bold text-gray-900">
-              ${product.price.toFixed(2)}
-            </span>
-            {product.originalPrice && (
-              <>
-                <span className="text-2xl text-gray-500 line-through">
-                  ${product.originalPrice.toFixed(2)}
-                </span>
-                <span className="text-lg text-red-600 font-semibold">
-                  Save {discount}%
-                </span>
-              </>
-            )}
-          </div>
-
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
           <p className="text-lg text-gray-600 mb-4">{product.brand}</p>
 
@@ -179,6 +162,23 @@ const ProductDetails = () => {
               {averageRating.toFixed(1)} ({totalReviews} reviews)
             </span>
           </div>
+
+           {/* Price */}
+            <div className="flex items-baseline gap-3 mb-4">
+              <span className="text-4xl font-bold text-gray-900">
+                ${product.price.toFixed(2)}
+              </span>
+              {product.originalPrice && (
+                <>
+                  <span className="text-2xl text-gray-500 line-through">
+                    ${product.originalPrice.toFixed(2)}
+                  </span>
+                  <span className="text-lg text-red-600 font-semibold">
+                    Save {discount}%
+                  </span>
+                </>
+              )}
+            </div>
 
           {/* Description */}
           <p className="text-gray-700 mb-6">{product.description}</p>
@@ -235,26 +235,24 @@ const ProductDetails = () => {
 
           {/* Action Buttons */}
           <div className="flex gap-4 mb-6">
+              <button
+                    onClick={handleWishlistToggle}
+                    className="bg-white border-2 border-gray-300 p-3 rounded-lg hover:border-red-500 hover:bg-red-50 transition"
+                  >
+                    <Heart
+                      size={24}
+                      className={isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}
+                    />
+                  </button>
             <button
               onClick={handleAddToCart}
               disabled={product.stock === 0}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               <ShoppingCart size={20} />
               Add to Cart
             </button>
-            <button
-              onClick={handleWishlistToggle}
-              className="bg-white border-2 border-gray-300 p-3 rounded-lg hover:border-red-500 hover:bg-red-50 transition"
-            >
-              <Heart
-                size={24}
-                className={isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}
-              />
-            </button>
-          </div>
 
-          {/* Buy Now Button */}
           <button
             onClick={() => {
               handleAddToCart();
@@ -265,6 +263,7 @@ const ProductDetails = () => {
           >
             Buy Now
           </button>
+          </div>
         </div>
       </div>
 

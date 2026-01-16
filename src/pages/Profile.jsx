@@ -14,9 +14,7 @@ const Profile = () => {
   useEffect(() => {
     if (!isAuthLoading && !user) {
       navigate('/signin');
-      return;
     }
-
     if (user) {
       const loadOrders = async () => {
         try {
