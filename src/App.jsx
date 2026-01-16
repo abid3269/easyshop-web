@@ -12,6 +12,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
 import Profile from './pages/Profile';
+import MyOrders from './pages/MyOrders';
 import Wishlist from './pages/Wishlist';
 
 function App() {
@@ -31,7 +32,7 @@ function App() {
                 <Route path="checkout" element={<Checkout />} />
                 <Route path="order-confirmation/:orderId" element={<OrderConfirmation />} />
                 <Route path="profile" element={<Profile />} />
-                <Route path="profile/orders" element={<Profile />} />
+                <Route path="profile/orders" element={<MyOrders />} />
                 <Route path="profile/addresses" element={<Profile />} />
                 <Route path="wishlist" element={<Wishlist />} />
               </Route>
