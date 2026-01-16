@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { trackEvent } from '../../lib/analytics';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -12,6 +13,12 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = (e) => {
     e.preventDefault();
     addToCart(product);
+    trackEvent('add_to_cart', {
+      product_id: product.id,
+      product_name: product.name,
+      price: product.price,
+      quantity: 1,
+    });
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 2000);
   };
