@@ -67,6 +67,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signInWithGoogle = async () => {
+    if (!auth) {
+      console.warn("Firebase Auth is disabled.");
+      return;
+    }
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -77,6 +81,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signInWithApple = async () => {
+    if (!auth) {
+      console.warn("Firebase Auth is disabled.");
+      return;
+    }
     const provider = new OAuthProvider('apple.com');
     try {
       const result = await signInWithPopup(auth, provider);
