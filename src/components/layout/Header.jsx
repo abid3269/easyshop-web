@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Search, Heart, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -10,6 +10,16 @@ const Header = () => {
   const { itemCount } = useCart();
   const { wishlistItems } = useWishlist();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMenuOpen(false);
+    }
+  };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -21,16 +31,20 @@ const Header = () => {
           </Link>
 
           {/* Search Bar - Desktop */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-8">
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-8">
             <div className="relative w-full">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search products..."
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <Search className="absolute right-3 top-2.5 text-gray-400" size={20} />
+              <button type="submit" className="absolute right-3 top-2.5 text-gray-400">
+                <Search size={20} />
+              </button>
             </div>
-          </div>
+          </form>
 
           {/* Navigation Icons */}
           <div className="flex items-center space-x-6">
@@ -101,13 +115,20 @@ const Header = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t">
-            <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <form onSubmit={handleSearch} className="mb-4">
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button type="submit" className="absolute right-3 top-2.5 text-gray-400">
+                  <Search size={20} />
+                </button>
+              </div>
+            </form>
             <Link to="/wishlist" className="block py-2">
               Wishlist ({wishlistItems.length})
             </Link>
