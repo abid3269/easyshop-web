@@ -2,25 +2,43 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ProfileSidebar from '../components/profile/ProfileSidebar';
-import { Package } from 'lucide-react';
+import { Package, Loader2 } from 'lucide-react';
+import { fetchOrders } from '../lib/api';
 
 const Profile = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
-  const [orders] = useState(() => {
-    // Load orders from localStorage
-    return JSON.parse(localStorage.getItem('orders') || '[]');
-  });
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isAuthLoading && !user) {
       navigate('/signin');
     }
-  }, [user, isLoading, navigate]);
+    if (user) {
+      const loadOrders = async () => {
+        try {
+          const data = await fetchOrders();
+          setOrders(data);
+        } catch (error) {
+          console.error('Failed to fetch orders:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      loadOrders();
+    }
+  }, [user, isAuthLoading, navigate]);
 
-  if (isLoading || !user) {
-    return null;
+  if (isAuthLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="animate-spin text-blue-600" size={48} />
+      </div>
+    );
   }
+
+  if (!user) return null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -73,20 +91,30 @@ const Profile = () => {
 
             {orders.length > 0 ? (
               <div className="space-y-4">
-                {orders.slice(0, 3).map((order) => (
-                  <div key={order.id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-gray-900">{order.id}</span>
-                      <span className="text-sm text-blue-600">{order.status}</span>
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      <p>{new Date(order.date).toLocaleDateString()}</p>
-                      <p className="font-semibold text-gray-900 mt-1">
-                        Total: ${order.total.toFixed(2)}
-                      </p>
-                    </div>
+                {isLoading ? (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="animate-spin text-blue-600" size={24} />
                   </div>
-                ))}
+                ) : (
+                  orders.slice(0, 3).map((order) => (
+                    <Link
+                      key={order.id}
+                      to={`/profile/orders/${order.id}`}
+                      className="block border border-gray-200 rounded-lg p-4 hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-gray-900">{order.id}</span>
+                        <span className="text-sm text-blue-600">{order.status}</span>
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <p>{new Date(order.date).toLocaleDateString()}</p>
+                        <p className="font-semibold text-gray-900 mt-1">
+                          Total: ${order.total.toFixed(2)}
+                        </p>
+                      </div>
+                    </Link>
+                  ))
+                )}
               </div>
             ) : (
               <div className="text-center py-8">

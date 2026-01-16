@@ -176,3 +176,59 @@ export const productReviews = {
     { id: 2, userName: 'David K.', rating: 4, date: '2024-01-09', comment: 'Good smartwatch, slightly pricey but worth it.' },
   ],
 };
+
+export const mockOrders = [
+  {
+    id: 'ORD-99901',
+    date: '2024-02-15T10:30:00.000Z',
+    total: 429.98,
+    status: 'Delivered',
+    shippingInfo: {
+      fullName: 'Test User',
+      address: '123 Main St',
+      city: 'Tech City',
+      zipCode: '12345',
+      country: 'USA'
+    },
+    paymentMethod: 'card',
+    items: [
+      {
+        id: 1,
+        name: 'Wireless Headphones',
+        price: 129.99,
+        quantity: 1,
+        image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop'
+      },
+      {
+        id: 2,
+        name: 'Smart Watch',
+        price: 299.99,
+        quantity: 1,
+        image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop'
+      }
+    ]
+  },
+  {
+    id: 'ORD-99902',
+    date: '2024-03-01T14:20:00.000Z',
+    total: 89.99,
+    status: 'Processing',
+    shippingInfo: {
+      fullName: 'Test User',
+      address: '123 Main St',
+      city: 'Tech City',
+      zipCode: '12345',
+      country: 'USA'
+    },
+    paymentMethod: 'cod',
+    items: [
+      {
+        id: 4,
+        name: 'Running Shoes',
+        price: 89.99,
+        quantity: 1,
+        image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop'
+      }
+    ]
+  }
+];

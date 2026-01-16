@@ -2,27 +2,45 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ProfileSidebar from '../components/profile/ProfileSidebar';
-import { Package, ChevronRight } from 'lucide-react';
+import { Package, ChevronRight, Loader2 } from 'lucide-react';
+import { fetchOrders } from '../lib/api';
 
 const MyOrders = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
-  const [orders] = useState(() => {
-    // Load orders from localStorage
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    // Sort by date descending
-    return storedOrders.sort((a, b) => new Date(b.date) - new Date(a.date));
-  });
+  const [orders, setOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!isAuthLoading && !user) {
       navigate('/signin');
+      return;
     }
-  }, [user, isLoading, navigate]);
 
-  if (isLoading || !user) {
-    return null;
+    if (user) {
+      const loadOrders = async () => {
+        try {
+          const data = await fetchOrders();
+          setOrders(data);
+        } catch (error) {
+          console.error('Failed to fetch orders:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      loadOrders();
+    }
+  }, [user, isAuthLoading, navigate]);
+
+  if (isAuthLoading || (isLoading && orders.length === 0)) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="animate-spin text-blue-600" size={48} />
+      </div>
+    );
   }
+
+  if (!user) return null;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -91,7 +109,7 @@ const MyOrders = () => {
                         </p>
                       </div>
                       <Link
-                        to={`/order-confirmation/${order.id}`}
+                        to={`/profile/orders/${order.id}`}
                         className="flex items-center text-blue-600 hover:text-blue-700 font-medium"
                       >
                         View Details

@@ -14,17 +14,13 @@ export const useWishlist = () => {
 export const WishlistProvider = ({ children }) => {
   const { user } = useAuth();
   const [wishlistItems, setWishlistItems] = useState([]);
+  const [prevUserId, setPrevUserId] = useState(null);
 
-  useEffect(() => {
-    if (user) {
-      const storedWishlist = localStorage.getItem(`wishlist_${user.id}`);
-      if (storedWishlist) {
-        setWishlistItems(JSON.parse(storedWishlist));
-      }
-    } else {
-      setWishlistItems([]);
-    }
-  }, [user]);
+  if (user?.id !== prevUserId) {
+    const storedWishlist = user ? localStorage.getItem(`wishlist_${user.id}`) : null;
+    setWishlistItems(storedWishlist ? JSON.parse(storedWishlist) : []);
+    setPrevUserId(user?.id);
+  }
 
   useEffect(() => {
     if (user) {

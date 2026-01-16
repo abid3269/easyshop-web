@@ -11,17 +11,12 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+    const storedCart = localStorage.getItem('cart');
+    return storedCart ? JSON.parse(storedCart) : [];
+  });
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState(0);
-
-  useEffect(() => {
-    // Load cart from localStorage
-    const storedCart = localStorage.getItem('cart');
-    if (storedCart) {
-      setCartItems(JSON.parse(storedCart));
-    }
-  }, []);
 
   useEffect(() => {
     // Save cart to localStorage
