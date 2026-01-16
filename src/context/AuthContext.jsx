@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { auth } from '../firebase';
 import { signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 
@@ -13,19 +13,13 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Check if user is logged in from localStorage
+  const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
-  }, []);
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [isLoading] = useState(false);
 
-  const signIn = (email, password) => {
+  const signIn = (email, password) => { // eslint-disable-line no-unused-vars
     // Mock authentication - in real app, this would call an API
     const mockUser = {
       id: '1',
@@ -37,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     return Promise.resolve(mockUser);
   };
 
-  const signUp = (name, email, password) => {
+  const signUp = (name, email, password) => { // eslint-disable-line no-unused-vars
     // Mock registration - in real app, this would call an API
     const mockUser = {
       id: Date.now().toString(),

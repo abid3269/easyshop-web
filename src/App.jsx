@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import Layout from './components/layout/Layout';
+import ScrollToTop from './components/layout/ScrollToTop';
 import Home from './pages/Home';
 import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
@@ -19,6 +20,7 @@ import Wishlist from './pages/Wishlist';
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         <CartProvider>
           <WishlistProvider>

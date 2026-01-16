@@ -1,27 +1,12 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Heart, Star } from 'lucide-react';
-import { useCart } from '../../context/CartContext';
+import { Heart, Star, ShoppingCart } from 'lucide-react';
 import { useWishlist } from '../../context/WishlistContext';
-import { useState } from 'react';
+import { useCart } from '../../context/CartContext';
 import {trackEvent} from "../../lib/analytics.js";
 
-const ProductCard = ({ product }) => {
-  const { addToCart } = useCart();
+const ProductCard = ({ product, showAddToCart = false }) => {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
-  const [showAddedMessage, setShowAddedMessage] = useState(false);
-
-  const handleAddToCart = (e) => {
-    e.preventDefault();
-    addToCart(product);
-    trackEvent('add_to_cart', {
-      product_id: product.id,
-      product_name: product.name,
-      price: product.price,
-      quantity: 1,
-    });
-    setShowAddedMessage(true);
-    setTimeout(() => setShowAddedMessage(false), 2000);
-  };
+  const { addToCart } = useCart();
 
   const handleWishlistToggle = (e) => {
     e.preventDefault();
@@ -44,6 +29,11 @@ const ProductCard = ({ product }) => {
       item_category: product.category,
       price: product.price,
     });
+  };
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    addToCart(product);
   };
 
   return (
@@ -120,19 +110,14 @@ const ProductCard = ({ product }) => {
             )}
           </div>
 
-          {/* Add to Cart Button */}
-          <button
-            onClick={handleAddToCart}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
-          >
-            <ShoppingCart size={18} />
-            Add to Cart
-          </button>
-
-          {showAddedMessage && (
-            <div className="absolute bottom-4 left-4 right-4 bg-green-500 text-white text-center py-2 rounded-lg text-sm">
-              Added to cart!
-            </div>
+          {showAddToCart && (
+            <button
+              onClick={handleAddToCart}
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 text-sm"
+            >
+              <ShoppingCart size={16} />
+              Add to Cart
+            </button>
           )}
         </div>
       </div>
