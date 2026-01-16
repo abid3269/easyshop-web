@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const signIn = (email, _password) => {
+  const signIn = (email, password) => {
     // Mock authentication - in real app, this would call an API
     const mockUser = {
       id: '1',
@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     return Promise.resolve(mockUser);
   };
 
-  const signUp = (name, email, _password) => {
+  const signUp = (name, email, password) => {
     // Mock registration - in real app, this would call an API
     const mockUser = {
       id: Date.now().toString(),
@@ -67,10 +67,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signInWithGoogle = async () => {
-    if (!auth) {
-      console.warn("Firebase Auth is disabled.");
-      return;
-    }
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
@@ -81,10 +77,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signInWithApple = async () => {
-    if (!auth) {
-      console.warn("Firebase Auth is disabled.");
-      return;
-    }
     const provider = new OAuthProvider('apple.com');
     try {
       const result = await signInWithPopup(auth, provider);

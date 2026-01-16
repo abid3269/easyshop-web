@@ -19,13 +19,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let auth = null;
-let analytics = null;
-
-if (import.meta.env.PROD) {
-  const app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  analytics = getAnalytics(app);
-}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const analytics = getAnalytics(app);
 
 export { auth, analytics };
