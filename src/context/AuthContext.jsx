@@ -1,6 +1,5 @@
-import { createContext, useContext, useState } from 'react';
-import { auth } from '../firebase';
-import { signInWithPopup, GoogleAuthProvider, GithubAuthProvider, OAuthProvider } from 'firebase/auth';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const AuthContext = createContext();
 
@@ -13,151 +12,100 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+  const {
+    user: auth0User,
+    isAuthenticated,
+    isLoading: auth0Loading,
+    loginWithRedirect,
+    logout,
+    getAccessTokenSilently
+  } = useAuth0();
+
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   });
-  const [isLoading, setIsLoading] = useState(false);
 
-  const signIn = async (email, password) => { // eslint-disable-line no-unused-vars
-    setIsLoading(true);
-    try {
-      // Mock authentication - in real app, this would call an API
-      const mockUser = {
-        id: '1',
-        email,
-        name: email.split('@')[0],
+  useEffect(() => {
+    if (isAuthenticated && auth0User) {
+      const userData = {
+        id: auth0User.sub,
+        email: auth0User.email,
+        name: auth0User.name,
+        displayName: auth0User.nickname || auth0User.name,
+        photoURL: auth0User.picture,
+        // Auth0 roles/permissions are typically in custom claims
+        roles: auth0User['https://easyshop.com/roles'] || [],
+        permissions: auth0User['https://easyshop.com/permissions'] || []
       };
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      return mockUser;
-    } finally {
-      setIsLoading(false);
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
+    } else if (!auth0Loading && !isAuthenticated) {
+      setUser(null);
+      localStorage.removeItem('user');
     }
+  }, [auth0User, isAuthenticated, auth0Loading]);
+
+  const signIn = async () => {
+    return loginWithRedirect();
   };
 
-  const signUp = async (name, email, password) => { // eslint-disable-line no-unused-vars
-    setIsLoading(true);
-    try {
-      // Mock registration - in real app, this would call an API
-      const mockUser = {
-        id: Date.now().toString(),
-        email,
-        name,
-      };
-      setUser(mockUser);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      return mockUser;
-    } finally {
-      setIsLoading(false);
-    }
+  const signUp = async () => {
+    return loginWithRedirect({
+      authorizationParams: {
+        screen_hint: 'signup',
+      },
+    });
   };
 
   const signOut = () => {
-    setUser(null);
-    localStorage.removeItem('user');
-  };
-
-  const handleAuthSuccess = (result) => {
-    const user = result.user;
-    const userData = {
-      id: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-    };
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
-    return userData;
+    logout({ logoutParams: { returnTo: window.location.origin } });
   };
 
   const signInWithGoogle = async () => {
-    setIsLoading(true);
-    try {
-      if (!auth) {
-        console.warn("Firebase Auth is disabled. Using mock user.");
-        const mockUser = {
-          id: 'google-mock-id',
-          email: 'google-user@example.com',
-          displayName: 'Google User',
-          photoURL: 'https://via.placeholder.com/150',
-        };
-        setUser(mockUser);
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        return mockUser;
-      }
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      return handleAuthSuccess(result);
-    } catch (error) {
-      console.error("Error signing in with Google:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    return loginWithRedirect({
+      authorizationParams: {
+        connection: 'google-oauth2',
+      },
+    });
   };
 
   const signInWithApple = async () => {
-    setIsLoading(true);
-    try {
-      if (!auth) {
-        console.warn("Firebase Auth is disabled. Using mock user.");
-        const mockUser = {
-          id: 'apple-mock-id',
-          email: 'apple-user@example.com',
-          displayName: 'Apple User',
-          photoURL: 'https://via.placeholder.com/150',
-        };
-        setUser(mockUser);
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        return mockUser;
-      }
-      const provider = new OAuthProvider('apple.com');
-      const result = await signInWithPopup(auth, provider);
-      return handleAuthSuccess(result);
-    } catch (error) {
-      console.error("Error signing in with Apple:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    return loginWithRedirect({
+      authorizationParams: {
+        connection: 'apple',
+      },
+    });
   };
 
   const signInWithGithub = async () => {
-    setIsLoading(true);
+    return loginWithRedirect({
+      authorizationParams: {
+        connection: 'github',
+      },
+    });
+  };
+
+  const getAccessToken = async () => {
     try {
-      if (!auth) {
-        console.warn("Firebase Auth is disabled. Using mock user.");
-        const mockUser = {
-          id: 'github-mock-id',
-          email: 'github-user@example.com',
-          displayName: 'Github User',
-          photoURL: 'https://via.placeholder.com/150',
-        };
-        setUser(mockUser);
-        localStorage.setItem('user', JSON.stringify(mockUser));
-        return mockUser;
-      }
-      const provider = new GithubAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      return handleAuthSuccess(result);
+      return await getAccessTokenSilently();
     } catch (error) {
-      console.error("Error signing in with Github:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      console.error("Error getting access token:", error);
+      return null;
     }
   };
 
   const value = {
     user,
-    isLoading,
+    isLoading: auth0Loading,
+    isAuthenticated,
     signIn,
     signUp,
     signOut,
     signInWithGoogle,
     signInWithApple,
     signInWithGithub,
+    getAccessToken
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
