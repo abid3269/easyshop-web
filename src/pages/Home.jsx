@@ -1,9 +1,33 @@
+import { useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { categories, products } from '../data/mockData';
 import ProductCard from '../components/products/ProductCard';
 import { ChevronRight } from 'lucide-react';
 
 const Home = () => {
+  const { getAccessToken } = useAuth();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const token = await getAccessToken();
+        const headers = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch('http://localhost:8080/api/products', { headers });
+        const data = await response.json();
+        console.log('Products from backend:', data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProducts();
+  }, [getAccessToken]);
+
   const flashSaleProducts = products.filter((p) => p.isFlashSale);
   const newArrivals = products.filter((p) => p.isNew);
   const recommendations = products.slice(0, 4);
