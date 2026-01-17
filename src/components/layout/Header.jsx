@@ -6,7 +6,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import { useState } from 'react';
 
 const Header = () => {
-  const { user, signOut } = useAuth();
+  const { user, signIn, signOut } = useAuth();
   const { itemCount } = useCart();
   const { wishlistItems } = useWishlist();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -94,12 +94,12 @@ const Header = () => {
                 </div>
               </div>
             ) : (
-              <Link
-                to="/signin"
+              <button
+                onClick={signIn}
                 className="hidden md:block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
               >
                 Sign In
-              </Link>
+              </button>
             )}
 
             {/* Mobile Menu Button */}
@@ -145,9 +145,9 @@ const Header = () => {
                 </button>
               </>
             ) : (
-              <Link to="/signin" className="block py-2">
+              <button onClick={signIn} className="block py-2 text-left w-full">
                 Sign In
-              </Link>
+              </button>
             )}
           </div>
         )}
