@@ -4,17 +4,14 @@ import { renderWithProviders } from '../../test/utils';
 import SignUp from '../SignUp';
 
 describe('SignUp Page', () => {
-  it('renders sign up page with Auth0 button', () => {
+  it('renders redirection message', () => {
     renderWithProviders(<SignUp />);
-    expect(screen.getByText(/Create your account/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Continue with Auth0/i })).toBeInTheDocument();
+    expect(screen.getByText(/Redirecting to Auth0/i)).toBeInTheDocument();
+    expect(screen.getByText(/Please wait while we connect you to our secure registration provider/i)).toBeInTheDocument();
   });
 
-  it('renders social sign in buttons', () => {
+  it('renders fallback button', () => {
     renderWithProviders(<SignUp />);
-    expect(screen.getByText(/Or use a social provider/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Sign in with Google/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Sign in with Apple/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Sign in with GitHub/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Click here if you are not redirected automatically/i })).toBeInTheDocument();
   });
 });
