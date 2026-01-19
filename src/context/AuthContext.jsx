@@ -28,6 +28,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated && auth0User) {
+      const namespace = import.meta.env.VITE_AUTH0_NAMESPACE || 'https://easyshop.com';
       const userData = {
         id: auth0User.sub,
         email: auth0User.email,
@@ -35,8 +36,8 @@ export const AuthProvider = ({ children }) => {
         displayName: auth0User.nickname || auth0User.name,
         photoURL: auth0User.picture,
         // Auth0 roles/permissions are typically in custom claims
-        roles: auth0User['https://easyshop.com/roles'] || [],
-        permissions: auth0User['https://easyshop.com/permissions'] || []
+        roles: auth0User[`${namespace}/roles`] || [],
+        permissions: auth0User[`${namespace}/permissions`] || []
       };
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
