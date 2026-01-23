@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { useAuth0 } from '@auth0/auth0-react';
+import {createContext, useContext, useEffect, useState} from 'react';
+import {useAuth0} from '@auth0/auth0-react';
 
 const AuthContext = createContext();
 
@@ -11,7 +11,7 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }) => {
+export const AuthProvider = ({children}) => {
   const {
     user: auth0User,
     isAuthenticated,
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = () => {
-    logout({ logoutParams: { returnTo: window.location.origin } });
+    logout({logoutParams: {returnTo: window.location.origin}});
   };
 
   const signInWithGoogle = async () => {
@@ -89,7 +89,12 @@ export const AuthProvider = ({ children }) => {
 
   const getAccessToken = async () => {
     try {
-      return await getAccessTokenSilently();
+      return await getAccessTokenSilently({
+        authorizationParams: {
+          audience: 'http://localhost:8080/',
+          redirect_uri: 'http://localhost:5175'
+        }
+      });
     } catch (error) {
       console.error("Error getting access token:", error);
       return null;
